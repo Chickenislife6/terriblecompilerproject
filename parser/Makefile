@@ -19,3 +19,4 @@ temp/parse.c: src/parser.bison
 	C:\Users\tyler\Desktop\bison\win_bison.exe --defines=temp/token.h --output=temp/parse.c src/parser.bison
 
 src/parser.bison:
+	
