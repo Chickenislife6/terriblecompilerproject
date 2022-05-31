@@ -1,7 +1,10 @@
 %{
     #include <stdio.h>
+    #include <stdlib.h>
     int yylex();
+    extern char* yytext;
     void yyerror(const char *s);
+    int parser_result = 0;
 %}
     %token TOKEN_EOF
     %token TOKEN_COMMENT
@@ -35,19 +38,19 @@
     %token TOKEN_RBRACKET
     %token TOKEN_ERROR
 %%
-program : expr TOKEN_SEMI;
-expr : expr TOKEN_PLUS term
-| expr TOKEN_MINUS term
-| term
-| TOKEN_EOF
+prog : expr TOKEN_SEMI { parser_result = $1; }
 ;
-term : term TOKEN_MUL factor
-| term TOKEN_DIV factor
-| factor
+expr : expr TOKEN_PLUS term { $$ = $1 + $3; }
+    | expr TOKEN_MINUS term { $$ = $1 - $3; }
+    | term { $$ = $1; }
 ;
-factor: TOKEN_MINUS factor
-| TOKEN_LPAREN expr TOKEN_RPAREN
-| TOKEN_NUMBER
+term : term TOKEN_MUL factor { $$ = $1 * $3; }
+    | term TOKEN_DIV factor { $$ = $1 / $3; }
+    | factor { $$ = $1; }
+;
+factor: TOKEN_MINUS factor { $$ = -$2; }
+    | TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; }
+    | TOKEN_NUMBER { $$ = atoi(yytext); }
 ;
 %%
 void yyerror(char const *s) {
