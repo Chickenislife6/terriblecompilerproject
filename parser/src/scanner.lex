@@ -7,13 +7,13 @@ WHITESPACE [ |\t|\n]
 %%
 {WHITESPACE} /* skip whitespace */
 \/\*\.\*\*\/ { return TOKEN_COMMENT; }
-int { return TOKEN_INT; }
-char { return TOKEN_CHAR; }
-string { return TOKEN_STRING; }
-void { return TOKEN_VOID; }
-boolean { return TOKEN_BOOLEAN; }
-array { return TOKEN_ARRAY; }
-return { return TOKEN_RETURN; }
+int/{WHITESPACE}* { return TOKEN_INT; }
+char/{WHITESPACE}* { return TOKEN_CHAR; }
+string/{WHITESPACE}* { return TOKEN_STRING; }
+void/{WHITESPACE}* { return TOKEN_VOID; }
+boolean/{WHITESPACE}* { return TOKEN_BOOLEAN; }
+array/{WHITESPACE}* { return TOKEN_ARRAY; }
+return/{WHITESPACE}* { return TOKEN_RETURN; }
 \= { return TOKEN_EQUALITY; }
 \+ { return TOKEN_PLUS; }
 \- { return TOKEN_MINUS; }
@@ -27,7 +27,7 @@ false { return TOKEN_FALSE; }
 for/\( { return TOKEN_FOR; }
 print/\( { return TOKEN_FOR; }
 ({LETTER}+)/\( { return TOKEN_FUNC; }
-{LETTER}(({LETTER}|{DIGIT})*)/(({WHITESPACE}|\,)*) { return TOKEN_IDENT; }
+{LETTER}(({LETTER}|{DIGIT})*)/(({WHITESPACE}|\,:)*) { return TOKEN_IDENT; }
 \"({DIGIT}|{LETTER}|[%: ])+\" { return TOKEN_VALUE; }
 {DIGIT}+ { return TOKEN_NUMBER; }
 \; { return TOKEN_SEMI; }
@@ -35,6 +35,8 @@ print/\( { return TOKEN_FOR; }
 \) {return TOKEN_RPAREN; }
 \{ {return TOKEN_LBRACKET; }
 \} {return TOKEN_RBRACKET; }
+\: {return TOKEN_COLON; }
+<<EOF>>  {return TOKEN_EOF; }
 . { return TOKEN_ERROR; }
 %%
 int yywrap() { return 1; }
