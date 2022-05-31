@@ -1,4 +1,2 @@
-parser/lex.yy.c
-parser/lex.yy.o
-parser/a.exe
+parser/temp/*
 .vscode/*
