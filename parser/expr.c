@@ -1,6 +1,6 @@
 #include "expr.h"
 
-struct expr *expr_create( sent_t kind,
+struct expr *expr_create( expr_t kind,
 struct expr *left,
 struct expr *right )
 {
@@ -11,27 +11,9 @@ e->left = left;
 e->right = right;
 return e;
 }
-
 struct expr *expr_create_value( int value )
 {
 struct expr *e = expr_create(EXPR_VALUE,0,0);
 e->value = value;
-return e;
-}
-
-struct decl *decl_create(sent_t type,
-struct expr *value,
-char* name) {
-struct decl *e = malloc(sizeof(*e));
-e->name = name;
-e->type = type;
-e->value = value;
-return e;
-}
-
-
-struct block *block_create(sent_t type) {
-struct block *e = malloc(sizeof(*e));
-e->type = type;
 return e;
 }

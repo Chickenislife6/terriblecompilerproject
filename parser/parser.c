@@ -6,16 +6,10 @@ extern FILE *yyin;
 extern char *yytext;
 extern int yylex();
 extern int yyparse();
-extern struct expr* expr_create(sent_t kind, struct expr *left, struct expr *right);
+extern struct expr* expr_create(expr_t kind, struct expr *left, struct expr *right);
 extern struct expr* expr_create_value(int);
-extern struct block* parser_result;
+extern struct expr* parser_result;
 
-int block_evaluate( struct block *e) {
-    if(!e) return 0;
-    switch(e->type) {
-        case EXPR: return 1;
-    }
-}
 int expr_evaluate( struct expr *e )
     {
     if(!e) return 0;
@@ -48,6 +42,6 @@ int main() {
     } else {
         printf("faliure");
     }
-    
-    printf("%s", parser_result->decl->value);
+
+    printf("%u", expr_evaluate(parser_result));
 }
