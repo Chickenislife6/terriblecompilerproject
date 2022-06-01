@@ -90,6 +90,9 @@ char* get_token_name(yytoken_kind_t t) {
         case TOKEN_ERROR:
             output = "TOKEN_ERROR";
             break;
+        case TOKEN_COLON:
+            output = "TOKEN_COLON";
+            break;
         default:
             break;
         }
