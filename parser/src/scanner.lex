@@ -7,6 +7,7 @@ WHITESPACE [ |\t|\n]
 %%
 {WHITESPACE} /* skip whitespace */
 \/\*\.\*\*\/ { return TOKEN_COMMENT; }
+END/{WHITESPACE}* { return TOKEN_EOF; }
 int/{WHITESPACE}* { return TOKEN_INT; }
 char/{WHITESPACE}* { return TOKEN_CHAR; }
 string/{WHITESPACE}* { return TOKEN_STRING; }
@@ -36,7 +37,6 @@ print/\( { return TOKEN_FOR; }
 \{ {return TOKEN_LBRACKET; }
 \} {return TOKEN_RBRACKET; }
 \: {return TOKEN_COLON; }
-<<EOF>>  {return TOKEN_EOF; }
 . { return TOKEN_ERROR; }
 %%
 int yywrap() { return 1; }

@@ -1,1 +1,2 @@
-1023/14*123;
+word: string = "string"; 
+END

@@ -15,8 +15,8 @@ parser: temp/parse.o temp/lex.yy.o
 temp/parse.o: temp/parse.c
 	gcc -o temp/parse.o temp/parse.c -c
 
-temp/parse.c: src/parser.bison
-	C:\Users\tyler\Desktop\bison\win_bison.exe --defines=temp/token.h --output=temp/parse.c src/parser.bison
+temp/parse.c: src/parser.y
+	C:\Users\tyler\Desktop\bison\win_bison.exe --defines=temp/token.h --output=temp/parse.c src/parser.y
 
-src/parser.bison:
+src/parser.y:
 	

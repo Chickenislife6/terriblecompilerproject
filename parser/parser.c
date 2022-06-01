@@ -1,14 +1,15 @@
 #include "temp/token.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "expr.c"
+#include "types/decl.h"
+#include "types/expr.h"
 extern FILE *yyin;
 extern char *yytext;
 extern int yylex();
 extern int yyparse();
-extern struct expr* expr_create(expr_t kind, struct expr *left, struct expr *right);
-extern struct expr* expr_create_value(int);
-extern struct expr* parser_result;
+// extern struct expr* expr_create(expr_t kind, struct expr *left, struct expr *right);
+// extern struct expr* expr_create_value(int);
+extern struct decl* parser_result;
 
 int expr_evaluate( struct expr *e )
     {
@@ -36,12 +37,14 @@ int main() {
         printf("could not open example.c!\n");
         return 1;
     }
-
     if(yyparse() == 0) {
         printf("success!");
     } else {
         printf("faliure");
     }
+    printf("\n %s a\n", parser_result->name);
+    printf("%s a\n", parser_result->str_value);
+    printf("%u a\n", parser_result->type);
+    printf("a");
 
-    printf("%u", expr_evaluate(parser_result));
 }
