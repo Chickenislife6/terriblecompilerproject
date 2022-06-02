@@ -12,8 +12,23 @@ extern int yyparse();
 // extern struct expr* expr_create_value(int);
 extern struct stmt* parser_result;
 
+void print_expr( struct expr *e ){
+    if(!e) return;
+    print_expr(e->left);
+    switch(e->kind) {
+        case EXPR_VALUE: printf("%u ", e->value); break;
+        case EXPR_ADD: printf("+ "); break;
+        case EXPR_SUBTRACT: printf("- "); break;
+        case EXPR_MULTIPLY: printf("* "); break;
+        case EXPR_DIVIDE: printf("/ "); break;
+        case EXPR_IDENT: printf("%s ", e->name); break;
+        return;
+    }
+    print_expr(e->right);
+
+}
+
 void print_stmt(struct stmt* e) {
-    
     if (!e) return;
     struct decl* value;
     switch(e->type) {
@@ -32,38 +47,21 @@ void print_stmt(struct stmt* e) {
                 case BOOLEAN:
                     printf("bool value:%u \n", value->bool_value);
                     break;
+                case EXPR:
+                    print_expr(value->expr_value);      
+                    break; 
             }
-            printf("name: %s \n", value->name);; 
+            printf("name: %s \n", value->name);
+            break;
         case STMT_ENUM:
-            printf("expr value: %u \n", e->expr_value);
+            print_expr(e->expr_value);
             break;
-        case STMT_STATEMENT:
-            print_stmt(e->next);
-            break;
-
     }
+    print_stmt(e->next);
 }
 
 
-int expr_evaluate( struct expr *e )
-    {
-    if(!e) return 0;
-    int l = expr_evaluate(e->left);
-    int r = expr_evaluate(e->right);
-    switch(e->kind) {
-    case EXPR_VALUE: return e->value;
-    case EXPR_ADD: return l+r;
-    case EXPR_SUBTRACT: return l-r;
-    case EXPR_MULTIPLY: return l*r;
-    case EXPR_DIVIDE:
-    if(r==0) {
-    printf("error: divide by zero\n");
-    exit(1);
-    }
-    return l/r;
-    }
-    return 0;
-    }
+
 
 int main() {
     yyin = fopen("example.c","r");

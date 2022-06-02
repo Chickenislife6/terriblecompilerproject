@@ -16,3 +16,11 @@ struct expr *expr_create_value( int value ) {
     e->value = value;
     return e;
 }
+
+
+struct expr *expr_create_ident( char* name ) {
+    struct expr *e = expr_create(EXPR_IDENT,0,0);
+    e->name = name;
+    return e;
+}
+

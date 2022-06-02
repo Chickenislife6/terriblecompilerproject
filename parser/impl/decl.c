@@ -5,7 +5,8 @@ type_t type,
 int int_value,
 char char_value,
 char* str_value,
-int bool_value) {
+int bool_value, 
+struct expr* expr_value) {
     struct decl *e = malloc(sizeof(*e));
     e->name = name;
     e->type = type;
@@ -25,6 +26,9 @@ int bool_value) {
         case BOOLEAN:
             // printf("boolean");
             e->bool_value = bool_value;
+            break;
+        case EXPR: 
+            e->expr_value = expr_value; 
             break;
     }
     return e;

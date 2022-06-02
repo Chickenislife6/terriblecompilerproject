@@ -4,7 +4,8 @@ typedef enum {
     EXPR_SUBTRACT,
     EXPR_DIVIDE,
     EXPR_MULTIPLY,
-    EXPR_VALUE
+    EXPR_VALUE,
+    EXPR_IDENT
 } expr_t;
 
 struct expr {
@@ -12,4 +13,5 @@ struct expr {
     struct expr *left;
     struct expr *right;
     int value;
+    char* name;
 };

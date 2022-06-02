@@ -10,7 +10,8 @@
     extern int yyleng;
     extern struct expr* expr_create(expr_t, struct expr*, struct expr*);
     extern struct expr* expr_create_value(int);
-    extern struct decl* decl_create(char*, type_t, int, char, char*, int);
+    extern struct expr* expr_create_ident(char* );
+    extern struct decl* decl_create(char*, type_t, int, char, char*, int, struct expr*);
     extern struct stmt* stmt_create(stmt_t, struct decl*, struct expr*, struct stmt*);
     void yyerror(const char *s);
     struct stmt* parser_result = 0;
@@ -69,28 +70,28 @@
 %%
 prog : sentence TOKEN_EOF {  printf("prog "); parser_result = $1; }
 ;
-sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); $$ = stmt_create(STMT_STATEMENT, NULL, NULL, $2); }
+sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); $$ = stmt_create($1->type, $1->decl_value, $1->expr_value, $2); }
         | sentence2 TOKEN_SEMI { printf("nothin "); $$ = $1; }
 ;
 sentence2 : decl  { printf("DECL ", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL);  } 
         | statement { }
         | expr  { printf("EXPR "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
 ;
-decl : ident TOKEN_COLON type TOKEN_EQUALITY value { $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value);}
+decl : ident TOKEN_COLON type TOKEN_EQUALITY value { $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value, $5->expr_value);}
 ;
-ident : TOKEN_IDENT { $$ = copy_yytext(yytext); }
+ident : TOKEN_IDENT { printf("%s ", yytext); $$ =  copy_yytext(yytext); }
 ;
-type : TOKEN_INT { $$ = INTEGER;  }
+type : TOKEN_INT { $$ = EXPR;  }
     | TOKEN_STRING { $$ = STRING; }
     | TOKEN_CHAR { $$ = CHAR; }
     | TOKEN_BOOLEAN { $$ = BOOLEAN; }
     /* | TOKEN_ARRAY { } */
 ;
-value : TOKEN_NUMBER { $$ = decl_create("", INTEGER, atoi(yytext), 0, 0, 0);  }
-    | TOKEN_VALUE { $$ = decl_create("", STRING, 0, 0, copy_yytext(yytext), 0); }
+value : TOKEN_VALUE { $$ = decl_create("", STRING, 0, 0, copy_yytext(yytext), 0, NULL); }
     // add char
-    | TOKEN_TRUE {  $$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext)); }
-    | TOKEN_FALSE {$$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext)); }
+    | TOKEN_TRUE {  $$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext), NULL); }
+    | TOKEN_FALSE {$$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext), NULL); }
+    | expr { $$ = decl_create("", EXPR, 0, 0, 0, 0, $1); }
 ;
 statement: expr { }
 ;
@@ -105,6 +106,7 @@ term : term TOKEN_MUL factor { $$ = expr_create(EXPR_MULTIPLY, $1, $3); }
 factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2); }
     | TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; }
     | TOKEN_NUMBER { $$ = expr_create_value(atoi(yytext)); }
+    | ident { $$ = expr_create_ident( copy_yytext(yytext) ); }
 ;
 %%
 void yyerror(char const *s) {

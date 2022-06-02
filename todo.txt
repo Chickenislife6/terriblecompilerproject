@@ -18,3 +18,6 @@ struct stmt {
         body_decl;
 }
 ----------------------------
+
+
+add ability to read if statements to finish turing completeness!

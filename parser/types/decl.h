@@ -2,7 +2,8 @@ typedef enum {
     INTEGER,
     STRING, 
     CHAR,
-    BOOLEAN
+    BOOLEAN,
+    EXPR
 } type_t;
 
 struct decl { 
@@ -12,5 +13,6 @@ struct decl {
     char* str_value;
     char char_value;
     int bool_value;
+    struct expr* expr_value;
 };
 

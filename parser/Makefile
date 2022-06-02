@@ -19,6 +19,6 @@ temp/parse.c: src/parser.y
 	C:\Users\tyler\Desktop\bison\win_bison.exe --output=temp/parse.c src/parser.y
 
 temp/token.h: src/parser.y
-	C:\Users\tyler\Desktop\bison\win_bison.exe --defines=temp/token.h --output=temp/parse.c src/parser.y
-	
+	C:\Users\tyler\Desktop\bison\win_bison.exe --defines=temp/token.h --output=temp/parse.c src/parser.y -v
+
 src/parser.y:
