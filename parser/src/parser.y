@@ -15,7 +15,6 @@
     void yyerror(const char *s);
     struct stmt* parser_result = 0;
     char* copy_yytext(char* text) {
-        printf("test");
         char* return_text = malloc(sizeof(char)*yyleng);
         strcpy(return_text, text);
         return return_text;
@@ -68,44 +67,44 @@
     %type <decl_ptr> decl value
     %type <stmt_ptr> sentence2 prog sentence
 %%
-prog : sentence TOKEN_EOF {  printf("seoijretji "); parser_result = $1; }
+prog : sentence TOKEN_EOF {  printf("prog "); parser_result = $1; }
 ;
-sentence : sentence sentence2 TOKEN_SEMI { $$ = stmt_create(STMT_STATEMENT, NULL, NULL, $2); }
-        | sentence2 TOKEN_SEMI { $$ = $1; }
+sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); $$ = stmt_create(STMT_STATEMENT, NULL, NULL, $2); }
+        | sentence2 TOKEN_SEMI { printf("nothin "); $$ = $1; }
 ;
-sentence2 : decl  { printf("%s NAME \n", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL);  } 
+sentence2 : decl  { printf("DECL ", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL);  } 
         | statement { }
-        | expr  { printf("prog "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
+        | expr  { printf("EXPR "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
 ;
 decl : ident TOKEN_COLON type TOKEN_EQUALITY value { $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value);}
 ;
-ident : TOKEN_IDENT { printf("%s ident \n", yytext); $$ = copy_yytext(yytext); }
+ident : TOKEN_IDENT { $$ = copy_yytext(yytext); }
 ;
-type : TOKEN_INT { printf("integer "); $$ = INTEGER;  }
-    | TOKEN_STRING { printf("string "); $$ = STRING; }
-    | TOKEN_CHAR { printf("char "); $$ = CHAR; }
-    | TOKEN_BOOLEAN { printf("boolean "); $$ = BOOLEAN; }
+type : TOKEN_INT { $$ = INTEGER;  }
+    | TOKEN_STRING { $$ = STRING; }
+    | TOKEN_CHAR { $$ = CHAR; }
+    | TOKEN_BOOLEAN { $$ = BOOLEAN; }
     /* | TOKEN_ARRAY { } */
 ;
-value : TOKEN_NUMBER { printf("number "); $$ = decl_create("", INTEGER, atoi(yytext), 0, 0, 0);  }
-    | TOKEN_VALUE { printf("value "); $$ = decl_create("", STRING, 0, 0, copy_yytext(yytext), 0); }
+value : TOKEN_NUMBER { $$ = decl_create("", INTEGER, atoi(yytext), 0, 0, 0);  }
+    | TOKEN_VALUE { $$ = decl_create("", STRING, 0, 0, copy_yytext(yytext), 0); }
     // add char
-    | TOKEN_TRUE { printf("true "); $$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext)); }
-    | TOKEN_FALSE { printf("false "); $$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext)); }
+    | TOKEN_TRUE {  $$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext)); }
+    | TOKEN_FALSE {$$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext)); }
 ;
 statement: expr { }
 ;
-expr : expr TOKEN_PLUS term { $$ = expr_create(EXPR_ADD, $1, $3); printf("expr1 "); }
-    | expr TOKEN_MINUS term { $$ = expr_create(EXPR_SUBTRACT, $1, $3); printf("expr2 ");}
-    | term { $$ = $1; printf("expr3 ");}
+expr : expr TOKEN_PLUS term { $$ = expr_create(EXPR_ADD, $1, $3); }
+    | expr TOKEN_MINUS term { $$ = expr_create(EXPR_SUBTRACT, $1, $3); }
+    | term { $$ = $1; }
 ;
-term : term TOKEN_MUL factor { $$ = expr_create(EXPR_MULTIPLY, $1, $3); printf("term1 ");}
-    | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIVIDE, $1, $3); printf("term2 ");}
-    | factor { $$ = $1; printf("term3 ");}
+term : term TOKEN_MUL factor { $$ = expr_create(EXPR_MULTIPLY, $1, $3); }
+    | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIVIDE, $1, $3); }
+    | factor { $$ = $1; }
 ;
-factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2); printf("a ");}
-    | TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; printf("b "); }
-    | TOKEN_NUMBER { $$ = expr_create_value(atoi(yytext)); printf("c ");}
+factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2); }
+    | TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; }
+    | TOKEN_NUMBER { $$ = expr_create_value(atoi(yytext)); }
 ;
 %%
 void yyerror(char const *s) {

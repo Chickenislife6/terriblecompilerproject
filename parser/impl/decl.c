@@ -11,19 +11,19 @@ int bool_value) {
     e->type = type;
     switch(type) {
         case STRING:
-            printf("string");
+            // printf("string");
             e->str_value = str_value;
             break;
         case INTEGER:
-            printf("int");
+            // printf("int");
             e->int_value = int_value;
             break;
         case CHAR:
-            printf("char");
+            // printf("char");
             e->char_value = char_value;
             break;
         case BOOLEAN:
-            printf("boolean");
+            // printf("boolean");
             e->bool_value = bool_value;
             break;
     }
