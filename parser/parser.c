@@ -22,6 +22,9 @@ void print_expr( struct expr *e ){
         case EXPR_MULTIPLY: printf("* "); break;
         case EXPR_DIVIDE: printf("/ "); break;
         case EXPR_IDENT: printf("%s ", e->name); break;
+        case EXPR_LT: printf("< "); break;
+        case EXPR_GT: printf("> "); break;
+        case EXPR_EQUAL: printf("== "); break;
         return;
     }
     print_expr(e->right);

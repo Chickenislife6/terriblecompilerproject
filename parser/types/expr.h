@@ -5,7 +5,10 @@ typedef enum {
     EXPR_DIVIDE,
     EXPR_MULTIPLY,
     EXPR_VALUE,
-    EXPR_IDENT
+    EXPR_IDENT,
+    EXPR_LT,
+    EXPR_GT,
+    EXPR_EQUAL
 } expr_t;
 
 struct expr {

@@ -15,11 +15,14 @@ void/{WHITESPACE}* { return TOKEN_VOID; }
 boolean/{WHITESPACE}* { return TOKEN_BOOLEAN; }
 array/{WHITESPACE}* { return TOKEN_ARRAY; }
 return/{WHITESPACE}* { return TOKEN_RETURN; }
-\= { return TOKEN_EQUALITY; }
+\= { return TOKEN_ASSIGN; }
 \+ { return TOKEN_PLUS; }
 \- { return TOKEN_MINUS; }
 \/ { return TOKEN_DIV; }
 \* { return TOKEN_MUL; }
+\=\= { return TOKEN_EQUALITY; }
+\< { return TOKEN_LT; }
+\> { return TOKEN_GT; }
 while { return TOKEN_WHILE; }
 if { return TOKEN_IF; }
 else { return TOKEN_ELSE; }

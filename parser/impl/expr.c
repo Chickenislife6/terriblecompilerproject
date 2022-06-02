@@ -23,4 +23,3 @@ struct expr *expr_create_ident( char* name ) {
     e->name = name;
     return e;
 }
-

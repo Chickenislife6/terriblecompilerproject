@@ -39,11 +39,14 @@
     %token <expr_ptr> TOKEN_VOID
     %token <expr_ptr> TOKEN_ARRAY
     %token <expr_ptr> TOKEN_RETURN
-    %token <expr_ptr> TOKEN_EQUALITY
+    %token <expr_ptr> TOKEN_ASSIGN
     %token <expr_ptr> TOKEN_PLUS
     %token <expr_ptr> TOKEN_MINUS
     %token <expr_ptr> TOKEN_DIV
     %token <expr_ptr> TOKEN_MUL
+    %token <expr_ptr> TOKEN_EQUALITY
+    %token <expr_ptr> TOKEN_LT
+    %token <expr_ptr> TOKEN_GT
     %token <expr_ptr> TOKEN_WHILE
     %token <expr_ptr> TOKEN_IF 
     %token <expr_ptr> TOKEN_ELSE
@@ -62,7 +65,7 @@
     %token <expr_ptr> TOKEN_LBRACKET
     %token <expr_ptr> TOKEN_RBRACKET
     %token <expr_ptr> TOKEN_ERROR
-    %type <expr_ptr> expr term factor 
+    %type <expr_ptr> expr term factor comparison
     %type <c> ident
     %type <i> type
     %type <decl_ptr> decl value
@@ -76,8 +79,11 @@ sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); $$ = stmt_create
 sentence2 : decl  { printf("DECL ", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL);  } 
         | statement { }
         | expr  { printf("EXPR "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
+        | if_statement { }
 ;
-decl : ident TOKEN_COLON type TOKEN_EQUALITY value { $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value, $5->expr_value);}
+if_statement : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN { }
+;
+decl : ident TOKEN_COLON type TOKEN_ASSIGN value { $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value, $5->expr_value);}
 ;
 ident : TOKEN_IDENT { printf("%s ", yytext); $$ =  copy_yytext(yytext); }
 ;
@@ -99,9 +105,14 @@ expr : expr TOKEN_PLUS term { $$ = expr_create(EXPR_ADD, $1, $3); }
     | expr TOKEN_MINUS term { $$ = expr_create(EXPR_SUBTRACT, $1, $3); }
     | term { $$ = $1; }
 ;
-term : term TOKEN_MUL factor { $$ = expr_create(EXPR_MULTIPLY, $1, $3); }
-    | term TOKEN_DIV factor { $$ = expr_create(EXPR_DIVIDE, $1, $3); }
-    | factor { $$ = $1; }
+term : term TOKEN_MUL comparison { $$ = expr_create(EXPR_MULTIPLY, $1, $3); }
+    | term TOKEN_DIV comparison { $$ = expr_create(EXPR_DIVIDE, $1, $3); }
+    | comparison { $$ = $1; }
+;
+comparison : comparison TOKEN_LT factor { $$ = expr_create(EXPR_LT, $1, $3); }
+            | comparison TOKEN_GT factor { $$ = expr_create(EXPR_GT, $1, $3); }
+            | comparison TOKEN_EQUALITY factor { $$ = expr_create(EXPR_EQUAL, $1, $3); }
+            | factor { $$ = $1; }
 ;
 factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUBTRACT, expr_create_value(0), $2); }
     | TOKEN_LPAREN expr TOKEN_RPAREN { $$ = $2; }
