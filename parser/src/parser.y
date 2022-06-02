@@ -3,6 +3,7 @@
     #include <stdlib.h>
     #include "../impl/decl.c"
     #include "../impl/expr.c"
+    #include "../impl/stmt.c"
     #include <string.h>
     int yylex();
     extern char* yytext;
@@ -10,8 +11,9 @@
     extern struct expr* expr_create(expr_t, struct expr*, struct expr*);
     extern struct expr* expr_create_value(int);
     extern struct decl* decl_create(char*, type_t, int, char, char*, int);
+    extern struct stmt* stmt_create(stmt_t, struct decl*, struct expr*, struct stmt*);
     void yyerror(const char *s);
-    struct decl* parser_result = 0;
+    struct stmt* parser_result = 0;
     char* copy_yytext(char* text) {
         printf("test");
         char* return_text = malloc(sizeof(char)*yyleng);
@@ -22,6 +24,7 @@
 %}
 
     %union { 
+        struct stmt* stmt_ptr;
         struct expr *expr_ptr;
         struct decl *decl_ptr;
         int i;
@@ -63,14 +66,17 @@
     %type <expr_ptr> expr term factor 
     %type <c> ident
     %type <i> type
-    %type <decl_ptr> decl prog sentence value
+    %type <decl_ptr> decl value
+    %type <stmt_ptr> sentence2 prog sentence
 %%
 prog : sentence TOKEN_EOF {  printf("seoijretji "); parser_result = $1; }
 ;
-sentence : decl TOKEN_SEMI { printf("%s NAME \n", $1->name); $$ = $1;  } 
-        /* | statement TOKEN_SEMI { } */
-        /* expr TOKEN_SEMI { $$ = $1; printf("prog "); } */
-
+sentence : sentence sentence2 TOKEN_SEMI { $$ = stmt_create(STMT_STATEMENT, NULL, NULL, $2); }
+        | sentence2 TOKEN_SEMI { $$ = $1; }
+;
+sentence2 : decl  { printf("%s NAME \n", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL);  } 
+        | statement { }
+        | expr  { printf("prog "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
 ;
 decl : ident TOKEN_COLON type TOKEN_EQUALITY value { $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value);}
 ;
@@ -88,7 +94,7 @@ value : TOKEN_NUMBER { printf("number "); $$ = decl_create("", INTEGER, atoi(yyt
     | TOKEN_TRUE { printf("true "); $$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext)); }
     | TOKEN_FALSE { printf("false "); $$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext)); }
 ;
-/* statement: expr { } */
+statement: expr { }
 ;
 expr : expr TOKEN_PLUS term { $$ = expr_create(EXPR_ADD, $1, $3); printf("expr1 "); }
     | expr TOKEN_MINUS term { $$ = expr_create(EXPR_SUBTRACT, $1, $3); printf("expr2 ");}
