@@ -1,0 +1,20 @@
+alter the parser.bison to an actual grammar of a language
+prog : sentence TOKEN_EOF
+;
+sentence : expr TOKEN_SEMI  
+        | decl TOKEN_SEMI
+        | statment TOKEN_SEMI
+;
+...
+
+
+change the definition of STMT to have some sort of body and next
+something like this 
+----------------------------
+struct stmt { 
+        type; // type describes the body, not the next
+        next; // next always exists or is null
+        body_expr;
+        body_decl;
+}
+----------------------------
