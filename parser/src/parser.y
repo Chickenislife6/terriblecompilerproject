@@ -22,7 +22,6 @@
 }
 
 %}
-
     %union { 
         struct stmt* stmt_ptr;
         struct expr *expr_ptr;
