@@ -37,28 +37,33 @@ void print_stmt(struct stmt* e) {
     switch(e->type) {
         case STMT_DECL: 
             value = e->decl_value;
+            printf("name: %s: ", value->name);
             switch(value->type) {
                 case INTEGER:
-                    printf("int value: %u \n", value->int_value);
+                    printf("int: %u \n", value->int_value);
                     break;
                 case STRING:
-                    printf("str value: %s \n", value->str_value);
+                    printf("str: %s \n", value->str_value);
                     break;
                 case CHAR:
-                    printf("char value: %s \n", value->char_value);
+                    printf("char: %s \n", value->char_value);
                     break;
                 case BOOLEAN:
-                    printf("bool value:%u \n", value->bool_value);
+                    printf("bool: %u \n", value->bool_value);
                     break;
                 case EXPR:
-                    print_expr(value->expr_value);      
+                    print_expr(value->expr_value);
+                    printf(" \n");      
                     break; 
             }
-            printf("name: %s \n", value->name);
             break;
         case STMT_ENUM:
             print_expr(e->expr_value);
             break;
+        case STMT_IF:
+            printf("if ( ");
+            print_expr(e->expr_value);
+            printf(") ");
     }
     print_stmt(e->next);
 }

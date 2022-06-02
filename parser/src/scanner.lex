@@ -24,10 +24,10 @@ return/{WHITESPACE}* { return TOKEN_RETURN; }
 \< { return TOKEN_LT; }
 \> { return TOKEN_GT; }
 while { return TOKEN_WHILE; }
-if { return TOKEN_IF; }
-else { return TOKEN_ELSE; }
-true { return TOKEN_TRUE; }
-false { return TOKEN_FALSE; }
+if/(\(|{WHITESPACE})* { return TOKEN_IF; }
+else/(\{|\(|{WHITESPACE})* { return TOKEN_ELSE; }
+true/{WHITESPACE}* { return TOKEN_TRUE; }
+false/{WHITESPACE}* { return TOKEN_FALSE; }
 for/\( { return TOKEN_FOR; }
 print/\( { return TOKEN_FOR; }
 ({LETTER}+)/\( { return TOKEN_FUNC; }

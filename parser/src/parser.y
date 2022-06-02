@@ -13,6 +13,7 @@
     extern struct expr* expr_create_ident(char* );
     extern struct decl* decl_create(char*, type_t, int, char, char*, int, struct expr*);
     extern struct stmt* stmt_create(stmt_t, struct decl*, struct expr*, struct stmt*);
+    extern struct stmt* if_create(struct stmt*, struct stmt*, struct stmt*, struct expr*);
     void yyerror(const char *s);
     struct stmt* parser_result = 0;
     char* copy_yytext(char* text) {
@@ -69,19 +70,19 @@
     %type <c> ident
     %type <i> type
     %type <decl_ptr> decl value
-    %type <stmt_ptr> sentence2 prog sentence
+    %type <stmt_ptr> sentence2 prog sentence if_statement
 %%
 prog : sentence TOKEN_EOF {  printf("prog "); parser_result = $1; }
 ;
-sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); $$ = stmt_create($1->type, $1->decl_value, $1->expr_value, $2); }
+sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); chain_stmt($1, $2); $$ = $1; }
         | sentence2 TOKEN_SEMI { printf("nothin "); $$ = $1; }
 ;
 sentence2 : decl  { printf("DECL ", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL);  } 
         | statement { }
         | expr  { printf("EXPR "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
-        | if_statement { }
+        | if_statement { $$ = $1; }
 ;
-if_statement : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN { }
+if_statement : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN TOKEN_LBRACKET sentence TOKEN_RBRACKET { printf("if matched"); $$ = if_create(NULL, NULL, $6, $3);}
 ;
 decl : ident TOKEN_COLON type TOKEN_ASSIGN value { $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value, $5->expr_value);}
 ;
