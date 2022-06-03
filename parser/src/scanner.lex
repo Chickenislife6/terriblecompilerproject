@@ -31,7 +31,7 @@ else/(\{|\(|{WHITESPACE})* { return TOKEN_ELSE; }
 true/{WHITESPACE}* { return TOKEN_TRUE; }
 false/{WHITESPACE}* { return TOKEN_FALSE; }
 for/\( { return TOKEN_FOR; }
-print/\( { return TOKEN_FOR; }
+print/\( { return TOKEN_PRINT; }
 ({LETTER}+)/\( { return TOKEN_FUNC; }
 {LETTER}(({LETTER}|{DIGIT})*)/(({WHITESPACE}|\,:)*) { return TOKEN_IDENT; }
 \"({DIGIT}|{LETTER}|[%: ])+\" { return TOKEN_VALUE; }

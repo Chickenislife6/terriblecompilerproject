@@ -28,14 +28,43 @@ struct table* add_entry(struct table* table, struct decl* decl) {
 
 type_t get_type(struct table* table, char* name) {
     if (!(table->entry)) {
+
         return 0;
     }
     if (!strcmp((table->entry->name), name)) {
-        return table->entry->type;
+        return table->entry->type; 
     }
 
     if((table->next)) {
         return get_type(table->next, name);
     }
     return 0;
+}
+union info {
+    char* a; 
+    int b;
+};
+
+union info get_info(struct table* table, char* name) {
+    union info info;
+
+    if (!(table->entry)) {
+        info.b = 0;
+        return info;
+    }
+    if (!strcmp((table->entry->name), name)) {
+        if ((table->entry->type) == (1||2)) {
+            info.a = table->entry->str_value;
+        }
+        else {
+            info.b = table->entry->bool_value;
+        }
+        // add expr
+        return info;
+    }
+
+    if((table->next)) {
+        return get_info(table->next, name);
+    }
+    return info;
 }

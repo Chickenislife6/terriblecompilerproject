@@ -14,6 +14,14 @@ extern int yyparse();
 extern struct stmt* parser_result;
 extern struct table* table;
 
+union info {
+    char* a;
+    int b;
+};
+
+extern union info get_info(struct table*, char*);
+extern type_t get_type(struct table*, char*);
+
 void print_expr( struct expr *e ){
     if(!e) return;
     print_expr(e->left);
@@ -79,6 +87,20 @@ void print_stmt(struct stmt* e) {
             printf(") {");
             print_stmt(e->body);
             printf("}");
+            break;
+        case STMT_PRINT:
+            printf("print(");
+            type_t type = get_type(table, e->identifier);
+            switch (type) {
+                case STRING:
+                    printf("%s", get_info(table, e->identifier).a);
+                    break;
+                case BOOLEAN:
+                    printf("%u", get_info(table, e->identifier).b);
+                    break;
+            }
+            printf(")");
+            break;
     }
     print_stmt(e->next);
 }
@@ -93,9 +115,9 @@ int main() {
     }
     if(yyparse() == 0) {
         printf("success!");
-        print_stmt(parser_result);
         printf("all decls in a decl table");
         print_table(table);
+        print_stmt(parser_result);
     } else {
         printf("faliure");
     }

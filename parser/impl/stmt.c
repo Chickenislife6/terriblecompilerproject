@@ -26,6 +26,14 @@ struct expr* comparison) {
     return e;
 }
 
+struct stmt *print_create( stmt_t type, 
+char* identifier) {
+    struct stmt *e = malloc(sizeof(*e));
+    e->type = type;
+    e->identifier = identifier;
+    return e;
+}
+
 void chain_stmt(struct stmt* beg,
 struct stmt* end) {
     if (beg->next) {

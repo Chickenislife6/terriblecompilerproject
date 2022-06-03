@@ -19,6 +19,7 @@
     extern struct decl* decl_create(char*, type_t, int, char, char*, int, struct expr*);
     extern struct stmt* stmt_create(stmt_t, struct decl*, struct expr*, struct stmt*);
     extern struct stmt* if_create(struct stmt*, struct stmt*, struct stmt*, struct expr*);
+    extern struct stmt* print_create(stmt_t, char*);
     extern struct table* add_entry(struct table*, struct decl*);
     extern struct table* create_table(struct decl*);
     extern int check_type(struct expr*, type_t, struct table*);
@@ -79,7 +80,7 @@
     %type <c> ident
     %type <i> type
     %type <decl_ptr> decl value
-    %type <stmt_ptr> sentence2 prog sentence if_statement
+    %type <stmt_ptr> sentence2 prog sentence if_statement function
 %%
 prog : sentence TOKEN_EOF {  printf("prog "); parser_result = $1; }
 ;
@@ -97,9 +98,12 @@ sentence2 : decl  { printf("DECL %s", $1->name);
                 add_entry(table, $1); } 
         | statement { }
         | expr  { printf("EXPR "); 
-        $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  
-        }
+            $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  
+            }
         | if_statement { $$ = $1; }
+        | function { $$ = $1;  } // currently only print
+;
+function : TOKEN_PRINT TOKEN_LPAREN ident TOKEN_RPAREN { printf("print statement: %s ", $3); $$ = print_create(STMT_PRINT, $3);}
 ;
 if_statement : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN TOKEN_LBRACKET sentence TOKEN_RBRACKET { printf("if matched"); 
         if (!check_type($3, EXPR, table)) {
@@ -134,8 +138,8 @@ type : TOKEN_INT { $$ = EXPR;  }
 ;
 value : TOKEN_VALUE { $$ = decl_create("", STRING, 0, 0, copy_yytext(yytext), 0, NULL); }
     // add char
-    | TOKEN_TRUE {  $$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext), NULL); }
-    | TOKEN_FALSE {$$ = decl_create("", BOOLEAN, 0, 0, 0, atoi(yytext), NULL); }
+    | TOKEN_TRUE {  $$ = decl_create("", BOOLEAN, 0, 0, 0, 1, NULL); }
+    | TOKEN_FALSE {$$ = decl_create("", BOOLEAN, 0, 0, 0, 0, NULL); }
     | expr { $$ = decl_create("", EXPR, 0, 0, 0, 0, $1); }
 ;
 statement: expr { }
