@@ -4,6 +4,7 @@
 #include "types/decl.h"
 #include "types/expr.h"
 #include "types/stmt.h"
+#include "types/stmt_table.h"
 extern FILE *yyin;
 extern char *yytext;
 extern int yylex();
@@ -11,6 +12,7 @@ extern int yyparse();
 // extern struct expr* expr_create(expr_t kind, struct expr *left, struct expr *right);
 // extern struct expr* expr_create_value(int);
 extern struct stmt* parser_result;
+extern struct table* table;
 
 void print_expr( struct expr *e ){
     if(!e) return;
@@ -31,31 +33,42 @@ void print_expr( struct expr *e ){
 
 }
 
+void print_decl(struct decl* e) {
+    printf("name: %s: ", e->name);
+    switch(e->type) {
+        case INTEGER:
+            printf("int: %u \n", e->int_value);
+            break;
+        case STRING:
+            printf("str: %s \n", e->str_value);
+            break;
+        case CHAR:
+            printf("char: %s \n", e->char_value);
+            break;
+        case BOOLEAN:
+            printf("bool: %u \n", e->bool_value);
+            break;
+        case EXPR:
+            print_expr(e->expr_value);
+            printf(" \n");      
+            break; 
+    }
+}
+
+void print_table( struct table* table) {
+    if (!table) return;
+    print_decl(table->entry);
+    print_table(table->next);
+}
+
+
 void print_stmt(struct stmt* e) {
     if (!e) return;
     struct decl* value;
     switch(e->type) {
         case STMT_DECL: 
             value = e->decl_value;
-            printf("name: %s: ", value->name);
-            switch(value->type) {
-                case INTEGER:
-                    printf("int: %u \n", value->int_value);
-                    break;
-                case STRING:
-                    printf("str: %s \n", value->str_value);
-                    break;
-                case CHAR:
-                    printf("char: %s \n", value->char_value);
-                    break;
-                case BOOLEAN:
-                    printf("bool: %u \n", value->bool_value);
-                    break;
-                case EXPR:
-                    print_expr(value->expr_value);
-                    printf(" \n");      
-                    break; 
-            }
+            print_decl(value);
             break;
         case STMT_ENUM:
             print_expr(e->expr_value);
@@ -72,7 +85,6 @@ void print_stmt(struct stmt* e) {
 
 
 
-
 int main() {
     yyin = fopen("example.c","r");
     if(!yyin) {
@@ -82,6 +94,8 @@ int main() {
     if(yyparse() == 0) {
         printf("success!");
         print_stmt(parser_result);
+        printf("all decls in a decl table");
+        print_table(table);
     } else {
         printf("faliure");
     }

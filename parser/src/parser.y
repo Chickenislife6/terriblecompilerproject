@@ -4,8 +4,12 @@
     #include "../impl/decl.c"
     #include "../impl/expr.c"
     #include "../impl/stmt.c"
+    #include "../impl/stmt_table.c"
     #include <string.h>
     int yylex();
+    struct table old_table = {0, 0};
+    struct table* table = &old_table;
+
     extern char* yytext;
     extern int yyleng;
     extern struct expr* expr_create(expr_t, struct expr*, struct expr*);
@@ -14,14 +18,15 @@
     extern struct decl* decl_create(char*, type_t, int, char, char*, int, struct expr*);
     extern struct stmt* stmt_create(stmt_t, struct decl*, struct expr*, struct stmt*);
     extern struct stmt* if_create(struct stmt*, struct stmt*, struct stmt*, struct expr*);
+    extern struct table* add_entry(struct table*, struct decl*);
+    extern struct table* create_table(struct decl*);
     void yyerror(const char *s);
     struct stmt* parser_result = 0;
     char* copy_yytext(char* text) {
         char* return_text = malloc(sizeof(char)*yyleng);
         strcpy(return_text, text);
         return return_text;
-}
-
+    }
 %}
     %union { 
         struct stmt* stmt_ptr;
@@ -77,7 +82,7 @@ prog : sentence TOKEN_EOF {  printf("prog "); parser_result = $1; }
 sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); chain_stmt($1, $2); $$ = $1; }
         | sentence2 TOKEN_SEMI { printf("nothin "); $$ = $1; }
 ;
-sentence2 : decl  { printf("DECL ", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL);  } 
+sentence2 : decl  { printf("DECL ", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL); add_entry(table, $1); } 
         | statement { }
         | expr  { printf("EXPR "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
         | if_statement { $$ = $1; }
