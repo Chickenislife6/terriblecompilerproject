@@ -1,6 +1,6 @@
 %{
 #include "token.h"
-int current_line = 0;
+int current_line = 1;
 %}
 DIGIT [0-9]
 LETTER [a-zA-Z]

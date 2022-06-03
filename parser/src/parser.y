@@ -21,6 +21,9 @@
     extern struct stmt* if_create(struct stmt*, struct stmt*, struct stmt*, struct expr*);
     extern struct table* add_entry(struct table*, struct decl*);
     extern struct table* create_table(struct decl*);
+    extern int check_type(struct expr*, type_t, struct table*);
+    extern type_t get_type(struct table*, char*);
+
     void yyerror(const char *s);
     struct stmt* parser_result = 0;
     char* copy_yytext(char* text) {
@@ -83,15 +86,26 @@ prog : sentence TOKEN_EOF {  printf("prog "); parser_result = $1; }
 sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); chain_stmt($1, $2); $$ = $1; }
         | sentence2 TOKEN_SEMI { printf("nothin "); $$ = $1; }
 ;
-sentence2 : decl  { printf("DECL ", $1->name); 
-
+sentence2 : decl  { printf("DECL %s", $1->name); 
+                if ($1->type == EXPR) {
+                    if (!check_type($1->expr_value, EXPR, table)) {
+                        yyerror("(DECL) the variable on the right is not equal in type to the left ");
+                    }
+                }
+                // add something that checks the table for the name and type if identifier exists and emits errors if type doens't match up
                 $$ = stmt_create(STMT_DECL, $1, NULL, NULL); 
                 add_entry(table, $1); } 
         | statement { }
-        | expr  { printf("EXPR "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
+        | expr  { printf("EXPR "); 
+        $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  
+        }
         | if_statement { $$ = $1; }
 ;
-if_statement : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN TOKEN_LBRACKET sentence TOKEN_RBRACKET { printf("if matched"); $$ = if_create(NULL, NULL, $6, $3);}
+if_statement : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN TOKEN_LBRACKET sentence TOKEN_RBRACKET { printf("if matched"); 
+        if (!check_type($3, EXPR, table)) {
+            yyerror("(EXPR) the variable on the right is not equal in type to the left ");
+        }
+        $$ = if_create(NULL, NULL, $6, $3);}
 ;
 decl : ident TOKEN_COLON type TOKEN_ASSIGN value { 
     $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value, $5->expr_value);
@@ -148,4 +162,14 @@ factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUBTRACT, expr_create_value(0
 void yyerror(char const *s) {
    printf("\n%s", s);
    printf("failed on line: %u \n", current_line);
+}
+
+int check_type(struct expr* e, type_t type, struct table* table) {
+    if (!e) {
+        return 1;
+    }
+    if ((e->kind == EXPR_IDENT) && (get_type(table, e->name) != type)) {
+        return 0;
+    }
+    return (check_type(e->left, type, table) && check_type(e->right, type, table));
 }

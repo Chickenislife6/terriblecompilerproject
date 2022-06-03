@@ -1,5 +1,5 @@
 #include "../types/stmt_table.h"
-
+#include<string.h>  
 struct table* create_table(struct decl* decl) {
     struct table* e = malloc(sizeof(*e));
     e->entry=decl;
@@ -26,3 +26,16 @@ struct table* add_entry(struct table* table, struct decl* decl) {
     return table;
 }
 
+type_t get_type(struct table* table, char* name) {
+    if (!(table->entry)) {
+        return 0;
+    }
+    if (!strcmp((table->entry->name), name)) {
+        return table->entry->type;
+    }
+
+    if((table->next)) {
+        return get_type(table->next, name);
+    }
+    return 0;
+}
