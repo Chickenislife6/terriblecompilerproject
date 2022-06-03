@@ -1,11 +1,13 @@
 %{
 #include "token.h"
+int current_line = 0;
 %}
 DIGIT [0-9]
 LETTER [a-zA-Z]
-WHITESPACE [ |\t|\n]
+WHITESPACE [ |\t]
 %%
 {WHITESPACE} /* skip whitespace */
+[\n] { current_line = current_line+1; }
 \/\*\.\*\*\/ { return TOKEN_COMMENT; }
 END/{WHITESPACE}* { return TOKEN_EOF; }
 int/{WHITESPACE}* { return TOKEN_INT; }

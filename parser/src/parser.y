@@ -12,9 +12,10 @@
 
     extern char* yytext;
     extern int yyleng;
+    extern int current_line;
     extern struct expr* expr_create(expr_t, struct expr*, struct expr*);
     extern struct expr* expr_create_value(int);
-    extern struct expr* expr_create_ident(char* );
+    extern struct expr* expr_create_ident(char*);
     extern struct decl* decl_create(char*, type_t, int, char, char*, int, struct expr*);
     extern struct stmt* stmt_create(stmt_t, struct decl*, struct expr*, struct stmt*);
     extern struct stmt* if_create(struct stmt*, struct stmt*, struct stmt*, struct expr*);
@@ -82,14 +83,32 @@ prog : sentence TOKEN_EOF {  printf("prog "); parser_result = $1; }
 sentence : sentence sentence2 TOKEN_SEMI { printf("expanded "); chain_stmt($1, $2); $$ = $1; }
         | sentence2 TOKEN_SEMI { printf("nothin "); $$ = $1; }
 ;
-sentence2 : decl  { printf("DECL ", $1->name); $$ = stmt_create(STMT_DECL, $1, NULL, NULL); add_entry(table, $1); } 
+sentence2 : decl  { printf("DECL ", $1->name); 
+
+                $$ = stmt_create(STMT_DECL, $1, NULL, NULL); 
+                add_entry(table, $1); } 
         | statement { }
         | expr  { printf("EXPR "); $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  }
         | if_statement { $$ = $1; }
 ;
 if_statement : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN TOKEN_LBRACKET sentence TOKEN_RBRACKET { printf("if matched"); $$ = if_create(NULL, NULL, $6, $3);}
 ;
-decl : ident TOKEN_COLON type TOKEN_ASSIGN value { $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value, $5->expr_value);}
+decl : ident TOKEN_COLON type TOKEN_ASSIGN value { 
+    $$ = decl_create($1, $3, $5->int_value, $5->char_value, $5->str_value, $5->bool_value, $5->expr_value);
+    switch ($3) {
+        case EXPR:
+            if ($5->type != EXPR) {yyerror("GIVEN TYPE IS NOT EXPR"); }
+            break;
+        case STRING:
+            if ($5->type != STRING) {yyerror("GIVEN TYPE IS NOT STRING");}
+            break;
+        case CHAR:
+            if ($5->type != STRING) {yyerror("GIVEN TYPE IS NOT A STRING");}
+            break;
+        case BOOLEAN:
+            if ($5->type != BOOLEAN) {yyerror("GIVEN TYPE IS NOT A BOOLEAN");}
+            break;
+    }}
 ;
 ident : TOKEN_IDENT { printf("%s ", yytext); $$ =  copy_yytext(yytext); }
 ;
@@ -127,5 +146,6 @@ factor: TOKEN_MINUS factor { $$ = expr_create(EXPR_SUBTRACT, expr_create_value(0
 ;
 %%
 void yyerror(char const *s) {
-   printf("%s\n", s);
+   printf("\n%s", s);
+   printf("failed on line: %u \n", current_line);
 }

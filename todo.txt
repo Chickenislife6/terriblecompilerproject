@@ -21,3 +21,6 @@ struct stmt {
 
 
 add ability to read if statements to finish turing completeness!
+
+add something that checks the global decl_table for the name and type if identifier exists and emits errors if type doens't match up
+should be done in sentences i believe
