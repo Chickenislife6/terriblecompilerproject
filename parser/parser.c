@@ -63,7 +63,9 @@ void print_stmt(struct stmt* e) {
         case STMT_IF:
             printf("if ( ");
             print_expr(e->expr_value);
-            printf(") ");
+            printf(") {");
+            print_stmt(e->body);
+            printf("}");
     }
     print_stmt(e->next);
 }
