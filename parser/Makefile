@@ -28,3 +28,6 @@ src/parser.y:
 
 
 parser.c:
+
+compiler: temp/parse.o temp/lex.yy.o parser.c
+	gcc compiler.c temp/parse.o temp/lex.yy.o -o parser.exe

@@ -2,3 +2,6 @@ parser/temp/*
 .vscode/*
 parser/parser.exe
 parser/a.exe
+parser/compiled.txt
+parser/test.s
+parser/test.c
