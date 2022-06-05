@@ -4,7 +4,7 @@ cat: int = 3;
 meow: int = 5< cat ;
 if(5>1){ 
     if(9<meow) {
-        i:string = "gay";
+        i: string = "strss";
     };
 };
 print(boooooool);

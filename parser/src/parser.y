@@ -27,9 +27,18 @@
 
     void yyerror(const char *s);
     struct stmt* parser_result = 0;
+
     char* copy_yytext(char* text) {
         char* return_text = malloc(sizeof(char)*yyleng);
         strcpy(return_text, text);
+        return return_text;
+    }
+
+    char* alter_yystring(char* text) {    
+        char* return_text = malloc(sizeof(char)*(yyleng-2));
+        memcpy(return_text, text+1, sizeof(return_text));
+        return_text[strlen(return_text)-1] = '\0';
+        printf("\rmemcpy'd: %s\r", return_text);
         return return_text;
     }
 %}
@@ -136,7 +145,7 @@ type : TOKEN_INT { $$ = EXPR;  }
     | TOKEN_BOOLEAN { $$ = BOOLEAN; }
     /* | TOKEN_ARRAY { } */
 ;
-value : TOKEN_VALUE { $$ = decl_create("", STRING, 0, 0, copy_yytext(yytext), 0, NULL); }
+value : TOKEN_VALUE { $$ = decl_create("", STRING, 0, 0, alter_yystring(yytext), 0, NULL); }
     // add char
     | TOKEN_TRUE {  $$ = decl_create("", BOOLEAN, 0, 0, 0, 1, NULL); }
     | TOKEN_FALSE {$$ = decl_create("", BOOLEAN, 0, 0, 0, 0, NULL); }

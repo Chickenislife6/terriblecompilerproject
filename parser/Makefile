@@ -2,7 +2,7 @@ impl_file := $(wildcard impl/*.c)
 types_file := $(wildcard types/*.h)
 
 lexer: temp/lex.yy.o
-	gcc lexer.c temp/lex.yy.o
+	gcc lexer.c temp/lex.yy.o -o lexer.exe
 
 temp/lex.yy.o: temp/lex.yy.c temp/token.h
 	gcc -o temp/lex.yy.o temp/lex.yy.c -c
@@ -30,4 +30,4 @@ src/parser.y:
 parser.c:
 
 compiler: temp/parse.o temp/lex.yy.o parser.c
-	gcc compiler.c temp/parse.o temp/lex.yy.o -o parser.exe
+	gcc compiler.c temp/parse.o temp/lex.yy.o -o compiler.exe

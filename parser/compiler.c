@@ -5,6 +5,7 @@
 #include "types/expr.h"
 #include "types/stmt.h"
 #include "types/stmt_table.h"
+#include "impl/printf_def.c"
 extern FILE *yyin;
 extern char *yytext;
 extern int yylex();
@@ -13,7 +14,8 @@ extern int yyparse();
 // extern struct expr* expr_create_value(int);
 extern struct stmt* parser_result;
 extern struct table* table;
-
+extern char* printf_def;
+int string_counter = 0;
 union info {
     char* a;
     int b;
@@ -26,7 +28,7 @@ void print_expr( struct expr *e, FILE* ptr ){
     if(!e) return;
     print_expr(e->left, ptr);
     switch(e->kind) {
-        case EXPR_VALUE: fprintf(ptr, "   .long %u \n", e->value); break;
+        case EXPR_VALUE: fprintf(ptr, "\t.long %u\r", e->value); break;
         case EXPR_ADD: printf("+ "); break;
         case EXPR_SUBTRACT: printf("- "); break;
         case EXPR_MULTIPLY: printf("* "); break;
@@ -42,26 +44,42 @@ void print_expr( struct expr *e, FILE* ptr ){
 }
 
 void print_decl(struct decl* e, FILE* ptr) {
-    printf("name: %s: ", e->name);
-    if (ptr) {
-        fprintf(ptr, "%s:\n", e->name);
-    }
+    fprintf(ptr, "\t.globl %s\r", e->name);
+        if (e->type==(BOOLEAN||EXPR)) {
+
+        }
     switch(e->type) {
         case INTEGER:
             printf("int: %u \n", e->int_value);
             break;
         case STRING:
-            fprintf(ptr, "    .ascii \"%s\\0\"\n  .data\n .align 8\n", e->str_value);
+            fprintf(ptr, "\t.section .rdata,\"dr\"\r"
+                        ".LC%u:\r"
+                        "\t.ascii \"%s\\0\"\r"
+                        "\t.data\r"
+                        "\t.globl %s\r"
+                        "\t.align 8\r"
+                        ".%s:\r"
+                        "\t.quad .LC%u\r", string_counter, e->str_value, e->name, e->name, string_counter);
+            string_counter++;
+            
             break;
         case CHAR:
             printf("char: %s \n", e->char_value);
             break;
         case BOOLEAN:
-            fprintf(ptr, "    .long 1%u \n", e->bool_value);
+            fprintf(ptr, "\t.data\r"
+                        "\t.align 4\r"
+                        "%s:\r"
+                        "\t.long %u\r",
+                        e->name, e->bool_value);
             break;
         case EXPR:
+            fprintf(ptr, "\t.data\r"
+                        "\t.align 4\r"
+                        "%s:\r",
+                        e->name);
             print_expr(e->expr_value, ptr);
-            printf(" \n");      
             break; 
     }
 }
@@ -69,6 +87,25 @@ void print_decl(struct decl* e, FILE* ptr) {
 void print_table( struct table* table, FILE* ptr) {
     if (!table) return;
     print_decl(table->entry, ptr);
+    print_table(table->next, ptr);
+}
+
+void print_int_table( struct table* table, FILE* ptr) {
+    if (!table) return;
+    if (table->entry->type == (CHAR||STRING)) {
+        print_table(table->next, ptr);
+        return;
+    }
+    print_decl(table->entry, ptr);
+    print_table(table->next, ptr);
+}
+void print_string_table( struct table* table, FILE* ptr) {
+    if (!table) return;
+    if (table->entry->type == (CHAR||STRING)) {
+        print_decl(table->entry, ptr);
+        print_table(table->next, ptr);
+        return;
+    }
     print_table(table->next, ptr);
 }
 
@@ -108,10 +145,16 @@ void print_stmt(struct stmt* e, FILE* ptr) {
     print_stmt(e->next, ptr);
 }
 
+int add_prelude(char* name, FILE* ptr) {
+    
+    fprintf(ptr, printf_def, name);
+}
+
 
 
 int main() {
-    FILE *ptr = fopen("compiled.txt","w");
+    char* file_name = "compiled.txt";
+    FILE *ptr = fopen(file_name,"w");
     yyin = fopen("example.c","r");
     if(!yyin) {
         printf("could not open example.c!\n");
@@ -119,8 +162,10 @@ int main() {
     }
     if(yyparse() == 0) {
         printf("success!");
-        print_table(table, ptr);
-        print_stmt(parser_result, ptr);
+        add_prelude(file_name, ptr);
+        print_int_table(table, ptr);
+        print_string_table(table, ptr);
+        // print_stmt(parser_result, ptr);
     } else {
         printf("faliure");
     }
