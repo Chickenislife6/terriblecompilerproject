@@ -5,3 +5,4 @@ parser/a.exe
 parser/compiled.txt
 parser/test.s
 parser/test.c
+parser/*.exe
