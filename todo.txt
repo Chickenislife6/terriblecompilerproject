@@ -26,3 +26,8 @@ add something that checks the global decl_table for the name and type if identif
 should be done in sentences i believe
 
 add expr_value to get_value in stmt_table.c
+
+
+// MOVE EVERYTHING INTO RAX, THE COMPARSION OPERATORS EMIT SPECIFIC OPERATIONS
+// BREADTHS FIRST, DEPENDENCIES MOVE UP TO THE FINAL COMPARISON OPERATOR (probably)
+print_expr_if()

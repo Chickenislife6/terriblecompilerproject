@@ -23,6 +23,7 @@ struct expr* comparison) {
     e->body = body;
     e->next = next;
     e->expr_value = comparison;
+    e->next = 0;
     return e;
 }
 
@@ -31,6 +32,7 @@ char* identifier) {
     struct stmt *e = malloc(sizeof(*e));
     e->type = type;
     e->identifier = identifier;
+    e->next = 0;
     return e;
 }
 
