@@ -1,0 +1,11 @@
+char* function_prelude = "\t.text\r"
+   "\t.globl\t%s\r"
+   "\t.def\t%s;\t.scl"
+   "\t2;\t.type\t32;\t.e"
+   "ndef\r"
+   "\t.seh_proc\t%s\r"
+   ""
+   "%s:\r"
+   "\tpushq\t%%rbp\r"
+   "\tmovq\t%%rsp, %%rbp\r"
+   "\tsubq\t$32, %%rsp";

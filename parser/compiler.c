@@ -6,6 +6,8 @@
 #include "types/stmt.h"
 #include "types/stmt_table.h"
 #include "impl/printf_def.c"
+#include "print_prototypes/function_postlude.c"
+#include "print_prototypes/function_prelude.c"
 extern FILE *yyin;
 extern char *yytext;
 extern int yylex();
@@ -15,6 +17,8 @@ extern int yyparse();
 extern struct stmt* parser_result;
 extern struct table* table;
 extern char* printf_def;
+extern char* function_prelude;
+extern char* function_postlude;
 int string_counter = 0;
 int label_counter = 0;
 int registers[10];
@@ -81,11 +85,28 @@ int print_expr_if( struct expr *e, FILE* ptr ){
             free_register(r2);
             return a;
         }
-        case EXPR_SUBTRACT: printf("- "); break;
+        case EXPR_SUBTRACT: printf("- "); {
+            int a = register_getter();
+            int r1 = print_expr_if(e->left, ptr);
+            int r2 = print_expr_if(e->right, ptr);
+            fprintf(ptr, "\tsubq r%u, r%u\r", r1, r2); 
+            fprintf(ptr, "\tmovq r%u, r%u\r", r2, a);
+            free_register(r1);
+            free_register(r2);
+            return a;
+        }
         case EXPR_MULTIPLY: printf("* "); break;
         case EXPR_DIVIDE: printf("/ "); break;
         case EXPR_LT: printf("< "); break;
-        case EXPR_GT: printf("> "); break;
+        case EXPR_GT: {
+            int a = register_getter();
+            int r1 = print_expr_if(e->left, ptr);
+            int r2 = print_expr_if(e->right, ptr);
+            fprintf(ptr, "\tcmpl r%u, r%u\r", r1, r2); 
+            free_register(r1);
+            free_register(r2);
+            return a;
+        }
         case EXPR_EQUAL: printf("== "); break;
         return;
     }
@@ -145,7 +166,6 @@ void print_table( struct table* table, FILE* ptr) {
 void print_stmt(struct stmt* e, FILE* ptr) {
     if (!e) return;
     struct expr* value;
-    printf("%u", e->type);
     switch(e->type) {
         case STMT_DECL: 
             // value = e->decl_value;
@@ -155,14 +175,14 @@ void print_stmt(struct stmt* e, FILE* ptr) {
             // print_expr_if(e->expr_value, ptr);
             break;
         case STMT_IF:
+            
             value = e->expr_value;
             print_expr_if(e->expr_value, ptr);
-
+            int curr_label = label_counter; ++label_counter;
+            fprintf(ptr, "\tjlt .L%u\r", curr_label);
             print_stmt(e->body, ptr);
-            fprintf(ptr, "");
-            printf(") {");
+            fprintf(ptr, ".L%u\r", curr_label);
             print_stmt(e->next, ptr);
-            printf("}");
             break;
         case STMT_PRINT:
             // printf("print(");
@@ -182,11 +202,14 @@ void print_stmt(struct stmt* e, FILE* ptr) {
 }
 
 int add_prelude(char* name, FILE* ptr) {
-    
     fprintf(ptr, printf_def, name);
 }
-
-
+int add_function(char* name, FILE* ptr) {
+    fprintf(ptr, function_prelude, name, name, name, name);
+}
+int close_function(char* name, FILE* ptr) {
+    fprintf(ptr, function_postlude, name, name, name, name);
+}
 
 int main() {
     char* file_name = "compiled.txt";
@@ -200,6 +223,7 @@ int main() {
         printf("success!");
         add_prelude(file_name, ptr);
         print_table(table, ptr);
+        add_function("main", ptr);
         // print_stmt(parser_result, ptr);
         print_stmt(parser_result, ptr);
     } else {
