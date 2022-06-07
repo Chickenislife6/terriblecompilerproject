@@ -36,7 +36,7 @@
 
     char* alter_yystring(char* text) {    
         char* return_text = malloc(sizeof(char)*(yyleng-2));
-        memcpy(return_text, text+1, sizeof(return_text));
+        strcpy(return_text, text+1);
         return_text[strlen(return_text)-1] = '\0';
         printf("\rmemcpy'd: %s\r", return_text);
         return return_text;

@@ -8,6 +8,7 @@
 #include "impl/printf_def.c"
 #include "print_prototypes/function_postlude.c"
 #include "print_prototypes/function_prelude.c"
+#include "print_prototypes/end_program.c"
 extern FILE *yyin;
 extern char *yytext;
 extern int yylex();
@@ -19,9 +20,10 @@ extern struct table* table;
 extern char* printf_def;
 extern char* function_prelude;
 extern char* function_postlude;
+extern char* end_program;
 int string_counter = 0;
 int label_counter = 0;
-int registers[10];
+int registers[16] = {1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0};
 
 int register_getter() {
     int i = 0;
@@ -67,20 +69,20 @@ int print_expr_if( struct expr *e, FILE* ptr ){
     switch(e->kind) {
         case EXPR_VALUE: {
             int a = register_getter();
-             fprintf(ptr, "\tmovq $%u, r%u\r", e->value, a);
+             fprintf(ptr, "\tmovq $%u, %%r%u\r", e->value, a);
              return a;
         }
         case EXPR_IDENT: {
             int a = register_getter();
-            fprintf(ptr, "\tmovq %s(%%rip), r%u\r", e->name, a);
+            fprintf(ptr, "\tmovq %s(%%rip), %%r%u\r", e->name, a);
             return a;
         }
         case EXPR_ADD: { 
             int a = register_getter();
             int r1 = print_expr_if(e->left, ptr);
             int r2 = print_expr_if(e->right, ptr);
-            fprintf(ptr, "\taddl r%u, r%u\r", r1, r2); 
-            fprintf(ptr, "\tmovq r%u, r%u\r", r2, a);
+            fprintf(ptr, "\taddl %%r%u, %%r%u\r", r1, r2); 
+            fprintf(ptr, "\tmovq %%r%u, %%r%u\r", r2, a);
             free_register(r1);
             free_register(r2);
             return a;
@@ -89,8 +91,8 @@ int print_expr_if( struct expr *e, FILE* ptr ){
             int a = register_getter();
             int r1 = print_expr_if(e->left, ptr);
             int r2 = print_expr_if(e->right, ptr);
-            fprintf(ptr, "\tsubq r%u, r%u\r", r1, r2); 
-            fprintf(ptr, "\tmovq r%u, r%u\r", r2, a);
+            fprintf(ptr, "\tsubq %%r%u, %%r%u\r", r1, r2); 
+            fprintf(ptr, "\tmovq %%r%u, %%r%u\r", r2, a);
             free_register(r1);
             free_register(r2);
             return a;
@@ -102,7 +104,7 @@ int print_expr_if( struct expr *e, FILE* ptr ){
             int a = register_getter();
             int r1 = print_expr_if(e->left, ptr);
             int r2 = print_expr_if(e->right, ptr);
-            fprintf(ptr, "\tcmpl r%u, r%u\r", r1, r2); 
+            fprintf(ptr, "\tcmpq %%r%u, %%r%u\r", r1, r2); 
             free_register(r1);
             free_register(r2);
             return a;
@@ -179,40 +181,44 @@ void print_stmt(struct stmt* e, FILE* ptr) {
             value = e->expr_value;
             print_expr_if(e->expr_value, ptr);
             int curr_label = label_counter; ++label_counter;
-            fprintf(ptr, "\tjlt .L%u\r", curr_label);
+            fprintf(ptr, "\tjl .L%u\r", curr_label);
             print_stmt(e->body, ptr);
-            fprintf(ptr, ".L%u\r", curr_label);
+            fprintf(ptr, ".L%u:\r", curr_label);
             print_stmt(e->next, ptr);
             break;
         case STMT_PRINT:
-            // printf("print(");
-            // type_t type = get_type(table, e->identifier);
-            // switch (type) {
-                // case STRING:
-                    // printf("%s", get_info(table, e->identifier).a);
-                    // break;
-                // case BOOLEAN:
-                    // printf("%u", get_info(table, e->identifier).b);
-                    // break;
-            // }
-            // printf(")");
+            fprintf(ptr, "\tmovq %s(%%rip), %%rcx\r", e->identifier);
+            fprintf(ptr, "\tcall printf\r");
+            printf("print(");
+            type_t type = get_type(table, e->identifier);
+            switch (type) {
+                case STRING:
+                    printf("%s", get_info(table, e->identifier).a);
+                    break;
+                case BOOLEAN:
+                    printf("%u", get_info(table, e->identifier).b);
+                    break;
+            }
+            printf(")");
             break;
     }
     print_stmt(e->next, ptr);
 }
 
 int add_prelude(char* name, FILE* ptr) {
-    fprintf(ptr, printf_def, name);
+    fprintf(ptr, printf_def);
 }
 int add_function(char* name, FILE* ptr) {
     fprintf(ptr, function_prelude, name, name, name, name);
 }
-int close_function(char* name, FILE* ptr) {
-    fprintf(ptr, function_postlude, name, name, name, name);
+int close_function(FILE* ptr) {
+    fprintf(ptr, function_postlude);
 }
-
+int program_end(FILE* ptr) {
+    fprintf(ptr, end_program);
+}
 int main() {
-    char* file_name = "compiled.txt";
+    char* file_name = "compiled.s";
     FILE *ptr = fopen(file_name,"w");
     yyin = fopen("example.c","r");
     if(!yyin) {
@@ -226,6 +232,8 @@ int main() {
         add_function("main", ptr);
         // print_stmt(parser_result, ptr);
         print_stmt(parser_result, ptr);
+        close_function(ptr);
+        program_end(ptr);
     } else {
         printf("faliure");
     }

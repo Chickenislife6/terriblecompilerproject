@@ -8,4 +8,4 @@ char* function_prelude = "\t.text\r"
    "%s:\r"
    "\tpushq\t%%rbp\r"
    "\tmovq\t%%rsp, %%rbp\r"
-   "\tsubq\t$32, %%rsp";
+   "\tsubq\t$32, %%rsp\r";

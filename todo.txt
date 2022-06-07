@@ -31,3 +31,6 @@ add expr_value to get_value in stmt_table.c
 // MOVE EVERYTHING INTO RAX, THE COMPARSION OPERATORS EMIT SPECIFIC OPERATIONS
 // BREADTHS FIRST, DEPENDENCIES MOVE UP TO THE FINAL COMPARISON OPERATOR (probably)
 print_expr_if()
+
+make file scoping automatic 
+https://stackoverflow.com/questions/3061582/include-all-files-in-a-directory

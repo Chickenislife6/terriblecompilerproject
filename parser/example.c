@@ -1,10 +1,7 @@
 word: int = 3; 
 bean: int = 2;
-print(bean);
+helloworld: string = "hello world!";
 if(word>bean) {
-    print(word);
-};
-if(bean>word) {
-    print(bean);
+    print(helloworld);
 };
 END

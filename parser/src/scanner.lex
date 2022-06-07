@@ -34,7 +34,7 @@ for/\( { return TOKEN_FOR; }
 print/\( { return TOKEN_PRINT; }
 ({LETTER}+)/\( { return TOKEN_FUNC; }
 {LETTER}(({LETTER}|{DIGIT})*)/(({WHITESPACE}|\,:)*) { return TOKEN_IDENT; }
-\"({DIGIT}|{LETTER}|[%: ])+\" { return TOKEN_VALUE; }
+\"({DIGIT}|{LETTER}|[%: !])+\" { return TOKEN_VALUE; }
 {DIGIT}+ { return TOKEN_NUMBER; }
 \; { return TOKEN_SEMI; }
 \( {return TOKEN_LPAREN; }

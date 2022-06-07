@@ -1,5 +1,4 @@
-char* printf_def = "\t.file \"%s\"\r"
-   "\t.text\r"
+char* printf_def = "\t.text\r"
    "\t.def\tprintf;\t.sc"
    "l\t3;\t.type\t32;\t."
    "endef\r"

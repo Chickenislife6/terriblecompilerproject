@@ -1,4 +1,5 @@
-char* function_postlude = "\taddq\t$32, %%rsp\r"
-   "\n"
-   "\tpopq\t%%rbp\r\n"
-   "\tret";
+char* function_postlude = "\tmovl\t$0, %%eax\r"
+   "\taddq\t$32, %%rsp\r"
+   ""
+   "\tpopq\t%%rbp\r"
+   "\tret\r";
