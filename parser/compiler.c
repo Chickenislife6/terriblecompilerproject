@@ -1,11 +1,12 @@
 #include "temp/token.h"
 #include <stdio.h>
+#include <iconv.h>
 #include <stdlib.h>
 #include "types/decl.h"
 #include "types/expr.h"
 #include "types/stmt.h"
 #include "types/stmt_table.h"
-#include "impl/printf_def.c"
+#include "print_prototypes/printf_def.c"
 #include "print_prototypes/function_postlude.c"
 #include "print_prototypes/function_prelude.c"
 #include "print_prototypes/end_program.c"
@@ -217,6 +218,7 @@ int close_function(FILE* ptr) {
 int program_end(FILE* ptr) {
     fprintf(ptr, end_program);
 }
+
 int main() {
     char* file_name = "compiled.s";
     FILE *ptr = fopen(file_name,"w");
@@ -238,5 +240,5 @@ int main() {
         printf("faliure");
     }
     printf("program end");
-
+    fclose(ptr);
 }

@@ -1,7 +1,7 @@
-word: int = 3; 
-bean: int = 2;
-helloworld: string = "hello world!";
-if(word>bean) {
-    print(helloworld);
+pixel: string = "wills";
+number: int = 12;
+number1: int = 92;
+if(number1>number) {
+    print(pixel);
 };
 END

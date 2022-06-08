@@ -29,5 +29,18 @@ src/parser.y:
 
 parser.c:
 
-compiler: temp/parse.o temp/lex.yy.o parser.c
+compiler.exe: temp/parse.o temp/lex.yy.o parser.c
 	gcc compiler.c temp/parse.o temp/lex.yy.o -o compiler.exe
+
+prog: compiled.s
+	@ECHO $(echo Get-Content compiled.s)
+
+	echo pass
+
+utfcompiled.s: compiled.s .FORCE
+	echo $(echo Get-Content compiled.s | echo Set-Content -Encoding utf8 utfcompiled.s)
+
+compiled.s: compiler.exe
+	compiler.exe
+
+.FORCE:

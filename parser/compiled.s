@@ -1,74 +1,1 @@
-	.text
-	.def	printf;	.scl	3;	.type	32;	.endef
-	.seh_proc	printf
-printf:
-	pushq	%rbp
-	.seh_pushreg	%rbp
-	pushq	%rbx
-	.seh_pushreg	%rbx
-	subq	$56, %rsp
-	.seh_stackalloc	56
-	leaq	48(%rsp), %rbp
-	.seh_setframe	%rbp, 48
-	.seh_endprologue
-	movq	%rcx, 32(%rbp)
-	movq	%rdx, 40(%rbp)
-	movq	%r8, 48(%rbp)
-	movq	%r9, 56(%rbp)
-	leaq	40(%rbp), %rax
-	movq	%rax, -16(%rbp)
-	movq	-16(%rbp), %rbx
-	movl	$1, %ecx
-	movq	__imp___acrt_iob_func(%rip), %rax
-	call	*%rax
-	movq	%rbx, %r8
-	movq	32(%rbp), %rdx
-	movq	%rax, %rcx
-	call	__mingw_vfprintf
-	movl	%eax, -4(%rbp)
-	movl	-4(%rbp), %eax
-	addq	$56, %rsp
-	popq	%rbx
-	popq	%rbp
-	ret
-	.seh_endproc
-	.data
-	.globl word
-	.align 4 
-word:
-	.long 3
-	.data
-	.globl bean
-	.align 4
-bean:
-	.long 2
-	.globl helloworld
-	.section .rdata,"dr"
-.LC0:
-	.ascii "hello world!\0"
-	.data
-	.align 8
-helloworld:
-	.quad .LC0
-	.text
-	.globl	main
-	.def	main;	.scl	2;	.type	32;	.endef
-	.seh_proc	main
-main:
-	pushq	%rbp
-	movq	%rsp, %rbp
-	subq	$32, %rsp
-	movq word(%rip), %r9
-	movq bean(%rip), %r10
-	cmpq %r9, %r10
-	jl .L0
-	movq helloworld(%rip), %rcx
-	call printf
-.L0:
-	movl	$0, %eax
-	addq	$32, %rsp
-	popq	%rbp
-	ret
-	.seh_endproc
-	.ident "GCC: (Rev5, Built by MSYS2 project) 10.3.0"
-	.def __mingw_vfprintf; .scl 2; .type 32; .endef
+	.text	.def	printf;	.scl	3;	.type	32;	.endef	.seh_proc	printfprintf:	pushq	%rbp	.seh_pushreg	%rbp	pushq	%rbx	.seh_pushreg	%rbx	subq	$56, %rsp	.seh_stackalloc	56	leaq	48(%rsp), %rbp	.seh_setframe	%rbp, 48	.seh_endprologue	movq	%rcx, 32(%rbp)	movq	%rdx, 40(%rbp)	movq	%r8, 48(%rbp)	movq	%r9, 56(%rbp)	leaq	40(%rbp), %rax	movq	%rax, -16(%rbp)	movq	-16(%rbp), %rbx	movl	$1, %ecx	movq	__imp___acrt_iob_func(%rip), %rax	call	*%rax	movq	%rbx, %r8	movq	32(%rbp), %rdx	movq	%rax, %rcx	call	__mingw_vfprintf	movl	%eax, -4(%rbp)	movl	-4(%rbp), %eax	addq	$56, %rsp	popq	%rbx	popq	%rbp	ret	.seh_endproc	.globl pixel	.section .rdata,"dr".LC0:	.ascii "wills\0"	.data	.align 8pixel:	.quad .LC0	.data	.globl number	.align 4number:	.long 12	.data	.globl number1	.align 4number1:	.long 92	.text	.globl	main	.def	main;	.scl	2;	.type	32;	.endef	.seh_proc	mainmain:	pushq	%rbp	movq	%rsp, %rbp	subq	$32, %rsp	movq number1(%rip), %r9	movq number(%rip), %r10	cmpq %r9, %r10	jl .L0	movq pixel(%rip), %rcx	call printf.L0:	movl	$0, %eax	addq	$32, %rsp	popq	%rbp	ret	.seh_endproc	.ident "GCC: (Rev5, Built by MSYS2 project) 10.3.0"	.def __mingw_vfprintf; .scl 2; .type 32; .endef
