@@ -5,7 +5,7 @@
 #include "types/expr.h"
 #include "types/stmt.h"
 #include "types/stmt_table.h"
-#include "impl/printf_def.c"
+#include "print_prototypes/printf_def.c"
 #include "print_prototypes/function_postlude.c"
 #include "print_prototypes/function_prelude.c"
 #include "print_prototypes/end_program.c"
@@ -50,7 +50,7 @@ void print_expr( struct expr *e, FILE* ptr ){
     print_expr(e->left, ptr);
     print_expr(e->right, ptr);
     switch(e->kind) {
-        case EXPR_VALUE: fprintf(ptr, "\t.long %u\r", e->value); break;
+        case EXPR_VALUE: fprintf(ptr, "\t.long %u\n", e->value); break;
         case EXPR_ADD: printf("+ "); break;
         case EXPR_SUBTRACT: printf("- "); break;
         case EXPR_MULTIPLY: printf("* "); break;
@@ -69,20 +69,20 @@ int print_expr_if( struct expr *e, FILE* ptr ){
     switch(e->kind) {
         case EXPR_VALUE: {
             int a = register_getter();
-             fprintf(ptr, "\tmovq $%u, %%r%u\r", e->value, a);
+             fprintf(ptr, "\tmovq $%u, %%r%u\n", e->value, a);
              return a;
         }
         case EXPR_IDENT: {
             int a = register_getter();
-            fprintf(ptr, "\tmovq %s(%%rip), %%r%u\r", e->name, a);
+            fprintf(ptr, "\tmovq %s(%%rip), %%r%u\n", e->name, a);
             return a;
         }
         case EXPR_ADD: { 
             int a = register_getter();
             int r1 = print_expr_if(e->left, ptr);
             int r2 = print_expr_if(e->right, ptr);
-            fprintf(ptr, "\taddl %%r%u, %%r%u\r", r1, r2); 
-            fprintf(ptr, "\tmovq %%r%u, %%r%u\r", r2, a);
+            fprintf(ptr, "\taddl %%r%u, %%r%u\n", r1, r2); 
+            fprintf(ptr, "\tmovq %%r%u, %%r%u\n", r2, a);
             free_register(r1);
             free_register(r2);
             return a;
@@ -91,8 +91,8 @@ int print_expr_if( struct expr *e, FILE* ptr ){
             int a = register_getter();
             int r1 = print_expr_if(e->left, ptr);
             int r2 = print_expr_if(e->right, ptr);
-            fprintf(ptr, "\tsubq %%r%u, %%r%u\r", r1, r2); 
-            fprintf(ptr, "\tmovq %%r%u, %%r%u\r", r2, a);
+            fprintf(ptr, "\tsubq %%r%u, %%r%u\n", r1, r2); 
+            fprintf(ptr, "\tmovq %%r%u, %%r%u\n", r2, a);
             free_register(r1);
             free_register(r2);
             return a;
@@ -104,7 +104,7 @@ int print_expr_if( struct expr *e, FILE* ptr ){
             int a = register_getter();
             int r1 = print_expr_if(e->left, ptr);
             int r2 = print_expr_if(e->right, ptr);
-            fprintf(ptr, "\tcmpq %%r%u, %%r%u\r", r1, r2); 
+            fprintf(ptr, "\tcmpq %%r%u, %%r%u\n", r1, r2); 
             free_register(r1);
             free_register(r2);
             return a;
@@ -123,14 +123,14 @@ void print_decl(struct decl* e, FILE* ptr) {
             printf("int: %u \n", e->int_value);
             break;
         case STRING:
-            fprintf(ptr, "\t.globl %s\r"
-                        "\t.section .rdata,\"dr\"\r"
-                        ".LC%u:\r"
-                        "\t.ascii \"%s\\0\"\r"
-                        "\t.data\r"
-                        "\t.align 8\r"
-                        "%s:\r"
-                        "\t.quad .LC%u\r", 
+            fprintf(ptr, "\t.globl %s\n"
+                        "\t.section .rdata,\"dr\"\n"
+                        ".LC%u:\n"
+                        "\t.ascii \"%s\\0\"\n"
+                        "\t.data\n"
+                        "\t.align 8\n"
+                        "%s:\n"
+                        "\t.quad .LC%u\n", 
                         e->name, string_counter, e->str_value, e->name, string_counter);
             string_counter++;
             
@@ -139,18 +139,18 @@ void print_decl(struct decl* e, FILE* ptr) {
             printf("char: %s \n", e->char_value);
             break;
         case BOOLEAN:
-            fprintf(ptr, "\t.data\r"
-                        "\t.globl %s\r"
-                        "\t.align 4\r"
-                        "%s:\r"
-                        "\t.long %u\r",
+            fprintf(ptr, "\t.data\n"
+                        "\t.globl %s\n"
+                        "\t.align 4\n"
+                        "%s:\n"
+                        "\t.long %u\n",
                         e->name, e->name, e->bool_value);
             break;
         case EXPR:
-            fprintf(ptr, "\t.data\r"
-                        "\t.globl %s\r"
-                        "\t.align 4\r"
-                        "%s:\r",
+            fprintf(ptr, "\t.data\n"
+                        "\t.globl %s\n"
+                        "\t.align 4\n"
+                        "%s:\n",
                         e->name, e->name);
             print_expr(e->expr_value, ptr);
             break; 
@@ -181,14 +181,14 @@ void print_stmt(struct stmt* e, FILE* ptr) {
             value = e->expr_value;
             print_expr_if(e->expr_value, ptr);
             int curr_label = label_counter; ++label_counter;
-            fprintf(ptr, "\tjl .L%u\r", curr_label);
+            fprintf(ptr, "\tjl .L%u\n", curr_label);
             print_stmt(e->body, ptr);
-            fprintf(ptr, ".L%u:\r", curr_label);
+            fprintf(ptr, ".L%u:\n", curr_label);
             print_stmt(e->next, ptr);
             break;
         case STMT_PRINT:
-            fprintf(ptr, "\tmovq %s(%%rip), %%rcx\r", e->identifier);
-            fprintf(ptr, "\tcall printf\r");
+            fprintf(ptr, "\tmovq %s(%%rip), %%rcx\n", e->identifier);
+            fprintf(ptr, "\tcall printf\n");
             printf("print(");
             type_t type = get_type(table, e->identifier);
             switch (type) {
@@ -217,6 +217,7 @@ int close_function(FILE* ptr) {
 int program_end(FILE* ptr) {
     fprintf(ptr, end_program);
 }
+const unsigned char UNICODE_BOM[3] = {0xEF, 0xBB, 0xBF};
 int main() {
     char* file_name = "compiled.s";
     FILE *ptr = fopen(file_name,"w");
@@ -238,5 +239,5 @@ int main() {
         printf("faliure");
     }
     printf("program end");
-
+    
 }

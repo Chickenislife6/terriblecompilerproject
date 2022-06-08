@@ -34,7 +34,7 @@ printf:
 	.seh_endproc
 	.data
 	.globl word
-	.align 4 
+	.align 4
 word:
 	.long 3
 	.data

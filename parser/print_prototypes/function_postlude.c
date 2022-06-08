@@ -1,5 +1,5 @@
-char* function_postlude = "\tmovl\t$0, %%eax\r"
-   "\taddq\t$32, %%rsp\r"
+char* function_postlude = "\tmovl\t$0, %%eax\n"
+   "\taddq\t$32, %%rsp\n"
    ""
-   "\tpopq\t%%rbp\r"
-   "\tret\r";
+   "\tpopq\t%%rbp\n"
+   "\tret\n";
