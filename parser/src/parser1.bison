@@ -16,6 +16,7 @@
     %token TOKEN_EOF
     %token TOKEN_COMMENT
     %token TOKEN_END
+    %token TOKEN_JUMP
     %token TOKEN_INT
     %token TOKEN_CHAR
     %token TOKEN_STRING 

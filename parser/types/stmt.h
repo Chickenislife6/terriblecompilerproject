@@ -8,7 +8,8 @@ typedef enum {
     STMT_ELSE,
     STMT_FUNCTION,
     STMT_RETURN,
-    STMT_PRINT
+    STMT_PRINT,
+    STMT_JUMP
 } stmt_t;
 
 struct stmt {

@@ -52,6 +52,7 @@
     %token <expr_ptr> TOKEN_EOF
     %token <expr_ptr> TOKEN_COMMENT
     %token <expr_ptr> TOKEN_END
+    %token <expr_ptr> TOKEN_JUMP
     %token <expr_ptr> TOKEN_INT
     %token <expr_ptr> TOKEN_CHAR
     %token <expr_ptr> TOKEN_STRING 
@@ -89,7 +90,7 @@
     %type <c> ident
     %type <i> type
     %type <decl_ptr> decl value
-    %type <stmt_ptr> sentence2 prog sentence if_statement function
+    %type <stmt_ptr> sentence2 prog sentence if_statement function statement
 %%
 prog : sentence TOKEN_EOF {  printf("prog "); parser_result = $1; }
 ;
@@ -105,7 +106,7 @@ sentence2 : decl  { printf("DECL %s", $1->name);
                 // add something that checks the table for the name and type if identifier exists and emits errors if type doens't match up
                 $$ = stmt_create(STMT_DECL, $1, NULL, NULL); 
                 add_entry(table, $1); } 
-        | statement { }
+        | statement { $$ = $1; }
         | expr  { printf("EXPR "); 
             $$ = stmt_create(STMT_ENUM, NULL, $1, NULL);  
             }
@@ -151,7 +152,7 @@ value : TOKEN_VALUE { $$ = decl_create("", STRING, 0, 0, alter_yystring(yytext),
     | TOKEN_FALSE {$$ = decl_create("", BOOLEAN, 0, 0, 0, 0, NULL); }
     | expr { $$ = decl_create("", EXPR, 0, 0, 0, 0, $1); }
 ;
-statement: expr { }
+statement: TOKEN_JUMP { $$ = stmt_create(STMT_JUMP, NULL, NULL, NULL);}
 ;
 expr : expr TOKEN_PLUS term { $$ = expr_create(EXPR_ADD, $1, $3); }
     | expr TOKEN_MINUS term { $$ = expr_create(EXPR_SUBTRACT, $1, $3); }

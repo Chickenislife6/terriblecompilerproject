@@ -176,8 +176,10 @@ void print_stmt(struct stmt* e, FILE* ptr) {
         case STMT_ENUM:
             // print_expr_if(e->expr_value, ptr);
             break;
+        case STMT_JUMP:
+            fprintf(ptr, "\tjmp .L%u\n", label_counter-1);
+            break;
         case STMT_IF:
-            
             value = e->expr_value;
             print_expr_if(e->expr_value, ptr);
             int curr_label = label_counter; ++label_counter;

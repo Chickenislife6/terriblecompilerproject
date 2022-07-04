@@ -58,12 +58,17 @@ main:
 	pushq	%rbp
 	movq	%rsp, %rbp
 	subq	$32, %rsp
+.L1:
 	movq word(%rip), %r9
 	movq bean(%rip), %r10
 	cmpq %r9, %r10
 	jl .L0
-	movq helloworld(%rip), %rcx
+	movq word(%rip), %rcx
 	call printf
+	movq word(%rip), %r11
+	subq $1, %r11
+	movq %r11, word(%rip)
+	jmp .L1
 .L0:
 	movl	$0, %eax
 	addq	$32, %rsp

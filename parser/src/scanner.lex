@@ -10,6 +10,7 @@ WHITESPACE [ |\t]
 [\n] { current_line = current_line+1; }
 \/\*\.\*\*\/ { return TOKEN_COMMENT; }
 END/{WHITESPACE}* { return TOKEN_EOF; }
+JUMP/{WHITESPACE}* { return TOKEN_JUMP; }
 int/{WHITESPACE}* { return TOKEN_INT; }
 char/{WHITESPACE}* { return TOKEN_CHAR; }
 string/{WHITESPACE}* { return TOKEN_STRING; }
